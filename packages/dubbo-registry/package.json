@@ -1,6 +1,6 @@
 {
   "name": "apache-dubbo-registry-test",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "./lib/index.js",
   "types": "./lib/typings/index.d.ts",
   "license": "Apache Licence 2.0",
@@ -18,8 +18,8 @@
     "url": "https://github.com/apache/dubbo-js"
   },
   "dependencies": {
-    "ip": "1.1.5",
     "apache-dubbo-common": "0.0.1",
+    "ip": "1.1.5",
     "nacos": "2.1.1",
     "zookeeper": "^4.10.0"
   }
