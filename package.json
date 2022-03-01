@@ -7,7 +7,6 @@
   "scripts": {
     "test:watch": "jest --watch -u",
     "test": "jest",
-    "prepare": "husky install",
     "build": "lerna exec tsc",
     "publish": "lerna publish"
   },
