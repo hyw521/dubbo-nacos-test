@@ -23,7 +23,7 @@ import Context from './context'
 import { go, util } from 'apache-dubbo-common'
 import Scheduler from './scheduler'
 import qs from 'querystring'
-import ip from 'ip'
+// import ip from 'ip'
 import * as s from './dubbo-setting'
 import {
   IDubboProps,
@@ -119,23 +119,33 @@ export default class Dubbo<TService = Object> {
       })
       service.group = meta.group
       service.version = meta.version
+      service.ip = meta.ip
+      service.port = meta.port
       this.service[shortName] = this.composeService(service)
     }
   }
 
   private composeService = (provider: IDubboProvider) => {
     const { application, isSupportedDubbox } = this.props
-    const { dubboInterface, methods, timeout, group, version } = provider
+    const {
+      dubboInterface,
+      methods,
+      timeout = 5000,
+      group,
+      version,
+      ip,
+      port
+    } = provider
     const proxyObj = Object.create(null)
 
     this.consumers.push({
       dubboServiceInterface: dubboInterface,
-      dubboServiceUrl: `consumer://${ip.address()}/${dubboInterface}?${qs.stringify(
+      dubboServiceUrl: `consumer://${ip}:${port}/${dubboInterface}?${qs.stringify(
         {
           application: this.props.application.name,
           interface: dubboInterface,
           category: 'consumers',
-          method: '',
+          methods: Object.keys(methods).join(','),
           revision: version,
           version: version,
           group: group,

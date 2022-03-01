@@ -1,3 +1,4 @@
+'use strict'
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -14,54 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { util } from 'apache-dubbo-common'
-import {
-  IDubboSetting,
-  TDubboInterface,
-  TDubboServiceShortName,
-  TMatchThunk
-} from './types'
-
-export type TSettingFunctionOption = (setting: DubboSetting) => void
-
-export class DubboSetting {
-  maxTimeout: number = 5 * 1000
-
-  private readonly matchDubboInterface: Map<TDubboInterface, IDubboSetting>
-  private readonly matchDubboRegx: Map<RegExp, IDubboSetting>
-  private readonly matchDubboThunk: Set<TMatchThunk>
-
+Object.defineProperty(exports, '__esModule', { value: true })
+exports.serviceThunk =
+  exports.service =
+  exports.maxTimeout =
+  exports.Setting =
+  exports.DubboSetting =
+    void 0
+const apache_dubbo_common_1 = require('apache-dubbo-common')
+class DubboSetting {
   constructor() {
+    this.maxTimeout = 5 * 1000
     this.matchDubboInterface = new Map()
     this.matchDubboRegx = new Map()
     this.matchDubboThunk = new Set()
   }
-
-  service(
-    rule: TDubboInterface | Array<TDubboInterface> | RegExp,
-    meta: IDubboSetting
-  ) {
-    if (util.isString(rule)) {
+  service(rule, meta) {
+    if (apache_dubbo_common_1.util.isString(rule)) {
       this.matchDubboInterface.set(rule, meta)
-    } else if (util.isArray(rule)) {
+    } else if (apache_dubbo_common_1.util.isArray(rule)) {
       rule.forEach((r) => this.matchDubboInterface.set(r, meta))
     } else if (rule instanceof RegExp) {
       this.matchDubboRegx.set(rule, meta)
     }
   }
-
-  serviceThunk(thunk: TMatchThunk) {
+  serviceThunk(thunk) {
     this.matchDubboThunk.add(thunk)
   }
-
-  getDubboSetting({
-    dubboServiceShortName,
-    dubboServiceInterface
-  }: {
-    dubboServiceShortName?: TDubboServiceShortName
-    dubboServiceInterface?: TDubboInterface
-  }) {
+  getDubboSetting({ dubboServiceShortName, dubboServiceInterface }) {
     const defaultMeta = {
       group: '',
       version: '0.0.0',
@@ -72,63 +53,49 @@ export class DubboSetting {
     for (let thunk of this.matchDubboThunk) {
       const meta = thunk(dubboServiceShortName)
       if (meta) {
-        return {
-          ...defaultMeta,
-          ...meta
-        }
+        return Object.assign(Object.assign({}, defaultMeta), meta)
       }
     }
-
     // second, search from dubboInterface
     if (this.matchDubboInterface.has(dubboServiceInterface)) {
       const meta = this.matchDubboInterface.get(dubboServiceInterface)
-      return {
-        ...defaultMeta,
-        ...meta
-      }
+      return Object.assign(Object.assign({}, defaultMeta), meta)
     }
-
     // third, search from regx
     for (let [r, meta] of this.matchDubboRegx) {
       if (r.test(dubboServiceInterface)) {
-        return {
-          ...defaultMeta,
-          ...meta
-        }
+        return Object.assign(Object.assign({}, defaultMeta), meta)
       }
     }
-
     // no service anything
     return defaultMeta
   }
 }
-
+exports.DubboSetting = DubboSetting
 // ~~~~~~~~~~~~~ factory method ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-export function Setting(...args: Array<TSettingFunctionOption>) {
+function Setting(...args) {
   const dubboSetting = new DubboSetting()
   for (let arg of args) {
     arg(dubboSetting)
   }
   return dubboSetting
 }
-
-export function maxTimeout(timeout: number) {
-  return (dubboSetting: DubboSetting) => {
+exports.Setting = Setting
+function maxTimeout(timeout) {
+  return (dubboSetting) => {
     dubboSetting.maxTimeout = timeout
   }
 }
-
-export function service(
-  rule: TDubboInterface | Array<TDubboInterface> | RegExp,
-  meta: IDubboSetting
-) {
-  return (dubboSetting: DubboSetting) => {
+exports.maxTimeout = maxTimeout
+function service(rule, meta) {
+  return (dubboSetting) => {
     return dubboSetting.service(rule, meta)
   }
 }
-
-export function serviceThunk(thunk: TMatchThunk) {
-  return (dubboSetting: DubboSetting) => {
+exports.service = service
+function serviceThunk(thunk) {
+  return (dubboSetting) => {
     dubboSetting.serviceThunk(thunk)
   }
 }
+exports.serviceThunk = serviceThunk
