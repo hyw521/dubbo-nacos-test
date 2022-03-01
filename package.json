@@ -8,7 +8,8 @@
     "test:watch": "jest --watch -u",
     "test": "jest",
     "prepare": "husky install",
-    "build": "lerna exec tsc"
+    "build": "lerna exec tsc",
+    "publish": "lerna publish"
   },
   "devDependencies": {
     "@types/fs-extra": "9.0.11",
